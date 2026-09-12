@@ -1,19 +1,16 @@
 package screens
 
 import (
-	"image"
-	"image/color"
 	"strings"
 
 	"gioui.org/layout"
-	"gioui.org/op/clip"
-	"gioui.org/op/paint"
 	"gioui.org/unit"
 	"gioui.org/widget"
 	"gioui.org/widget/material"
 
 	"todo-go/mobile/api"
 	"todo-go/mobile/auth"
+	"todo-go/mobile/styles"
 )
 
 type RegisterScreen struct {
@@ -62,15 +59,7 @@ func NewRegister(
 
 func (s *RegisterScreen) Layout(gtx layout.Context) layout.Dimensions {
 
-	paint.Fill(
-		gtx.Ops,
-		color.NRGBA{
-			R: 245,
-			G: 247,
-			B: 250,
-			A: 255,
-		},
-	)
+	fillPageBackground(gtx)
 
 	return layout.Center.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
 
@@ -78,8 +67,8 @@ func (s *RegisterScreen) Layout(gtx layout.Context) layout.Dimensions {
 		gtx.Constraints.Max.X = gtx.Dp(unit.Dp(380))
 
 		return layout.Inset{
-			Top:    unit.Dp(25),
-			Bottom: unit.Dp(25),
+			Top:    unit.Dp(24),
+			Bottom: unit.Dp(24),
 			Left:   unit.Dp(24),
 			Right:  unit.Dp(24),
 		}.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
@@ -91,18 +80,23 @@ func (s *RegisterScreen) Layout(gtx layout.Context) layout.Dimensions {
 
 				layout.Rigid(func(gtx layout.Context) layout.Dimensions {
 					return layout.Center.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
-						return material.H4(
-							s.Theme,
-							"Create Account",
-						).Layout(gtx)
+						title := material.H4(s.Theme, "Create Account")
+						title.Color = styles.TextPrimary
+						return title.Layout(gtx)
 					})
 				}),
 
+				layout.Rigid(spacer(6)),
+
 				layout.Rigid(func(gtx layout.Context) layout.Dimensions {
-					gtx.Constraints.Min.Y = gtx.Dp(unit.Dp(28))
-					gtx.Constraints.Max.Y = gtx.Dp(unit.Dp(28))
-					return layout.Spacer{}.Layout(gtx)
+					return layout.Center.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
+						subtitle := material.Body2(s.Theme, "Start tracking your tasks in seconds")
+						subtitle.Color = styles.TextSecondary
+						return subtitle.Layout(gtx)
+					})
 				}),
+
+				layout.Rigid(spacer(26)),
 
 				layout.Rigid(func(gtx layout.Context) layout.Dimensions {
 					return s.editor(
@@ -112,11 +106,7 @@ func (s *RegisterScreen) Layout(gtx layout.Context) layout.Dimensions {
 					)
 				}),
 
-				layout.Rigid(func(gtx layout.Context) layout.Dimensions {
-					gtx.Constraints.Min.Y = gtx.Dp(unit.Dp(12))
-					gtx.Constraints.Max.Y = gtx.Dp(unit.Dp(12))
-					return layout.Spacer{}.Layout(gtx)
-				}),
+				layout.Rigid(spacer(12)),
 
 				layout.Rigid(func(gtx layout.Context) layout.Dimensions {
 					return s.editor(
@@ -126,11 +116,7 @@ func (s *RegisterScreen) Layout(gtx layout.Context) layout.Dimensions {
 					)
 				}),
 
-				layout.Rigid(func(gtx layout.Context) layout.Dimensions {
-					gtx.Constraints.Min.Y = gtx.Dp(unit.Dp(12))
-					gtx.Constraints.Max.Y = gtx.Dp(unit.Dp(12))
-					return layout.Spacer{}.Layout(gtx)
-				}),
+				layout.Rigid(spacer(12)),
 
 				layout.Rigid(func(gtx layout.Context) layout.Dimensions {
 					return s.editor(
@@ -140,6 +126,8 @@ func (s *RegisterScreen) Layout(gtx layout.Context) layout.Dimensions {
 					)
 				}),
 
+				layout.Rigid(spacer(18)),
+
 				layout.Rigid(func(gtx layout.Context) layout.Dimensions {
 
 					if s.Error == "" {
@@ -148,37 +136,41 @@ func (s *RegisterScreen) Layout(gtx layout.Context) layout.Dimensions {
 						return layout.Spacer{}.Layout(gtx)
 					}
 
-					return material.Body2(
-						s.Theme,
-						s.Error,
-					).Layout(gtx)
+					return errorBanner(gtx, s.Theme, s.Error)
 				}),
+
+				layout.Rigid(spacer(8)),
 
 				layout.Rigid(func(gtx layout.Context) layout.Dimensions {
 
-					return material.Button(
+					button := material.Button(
 						s.Theme,
 						&s.RegisterButton,
 						"Register",
-					).Layout(gtx)
+					)
+
+					button.Background = styles.Primary
+					button.Color = styles.OnPrimary
+					button.CornerRadius = unit.Dp(14)
+
+					return button.Layout(gtx)
 				}),
 
-				layout.Rigid(func(gtx layout.Context) layout.Dimensions {
-					gtx.Constraints.Min.Y = gtx.Dp(unit.Dp(15))
-					gtx.Constraints.Max.Y = gtx.Dp(unit.Dp(15))
-					return layout.Spacer{}.Layout(gtx)
-				}),
+				layout.Rigid(spacer(12)),
 
 				layout.Rigid(func(gtx layout.Context) layout.Dimensions {
 
-					return layout.Center.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
+					button := material.Button(
+						s.Theme,
+						&s.LoginButton,
+						"Back to Login",
+					)
 
-						return material.Button(
-							s.Theme,
-							&s.LoginButton,
-							"Back to Login",
-						).Layout(gtx)
-					})
+					button.Background = styles.PrimarySoft
+					button.Color = styles.Primary
+					button.CornerRadius = unit.Dp(14)
+
+					return button.Layout(gtx)
 				}),
 			)
 		})
@@ -194,11 +186,21 @@ func (s *RegisterScreen) editor(
 	gtx.Constraints.Min.Y = gtx.Dp(unit.Dp(58))
 	gtx.Constraints.Max.Y = gtx.Dp(unit.Dp(58))
 
-	return material.Editor(
-		s.Theme,
-		editor,
-		label,
-	).Layout(gtx)
+	styles.FillMax(gtx, styles.Surface, unit.Dp(14))
+
+	return layout.Inset{
+		Left:  unit.Dp(16),
+		Right: unit.Dp(16),
+	}.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
+
+		return layout.Center.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
+			return material.Editor(
+				s.Theme,
+				editor,
+				label,
+			).Layout(gtx)
+		})
+	})
 }
 
 func (s *RegisterScreen) HandleEvents(gtx layout.Context) {
@@ -251,8 +253,3 @@ func (s *RegisterScreen) HandleEvents(gtx layout.Context) {
 		}
 	}
 }
-
-// Keep image import used by older Gio versions/build setups.
-var _ = image.Point{}
-var _ = clip.Rect{}
-var _ = paint.FillShape

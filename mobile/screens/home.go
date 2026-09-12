@@ -1,15 +1,11 @@
 package screens
 
 import (
-	"image"
-	"image/color"
 	"strconv"
 	"strings"
 
 	"gioui.org/app"
 	"gioui.org/layout"
-	"gioui.org/op/clip"
-	"gioui.org/op/paint"
 	"gioui.org/unit"
 	"gioui.org/widget"
 	"gioui.org/widget/material"
@@ -18,6 +14,7 @@ import (
 	"todo-go/mobile/auth"
 	"todo-go/mobile/components"
 	"todo-go/mobile/models"
+	"todo-go/mobile/styles"
 )
 
 type apiResult struct {
@@ -286,12 +283,12 @@ func (h *Home) header(
 	gtx layout.Context,
 ) layout.Dimensions {
 
-	gtx.Constraints.Min.Y = gtx.Dp(unit.Dp(72))
-	gtx.Constraints.Max.Y = gtx.Dp(unit.Dp(72))
+	gtx.Constraints.Min.Y = gtx.Dp(unit.Dp(76))
+	gtx.Constraints.Max.Y = gtx.Dp(unit.Dp(76))
 
 	return layout.Inset{
-		Top:    unit.Dp(8),
-		Bottom: unit.Dp(8),
+		Top:    unit.Dp(12),
+		Bottom: unit.Dp(12),
 		Left:   unit.Dp(24),
 		Right:  unit.Dp(24),
 	}.Layout(
@@ -310,14 +307,17 @@ func (h *Home) header(
 					1,
 					func(gtx layout.Context) layout.Dimensions {
 
-						return material.H6(
+						title := material.H6(
 							h.Theme,
 							"My Tasks",
-						).Layout(gtx)
+						)
+						title.Color = styles.TextPrimary
+
+						return title.Layout(gtx)
 					},
 				),
 
-				// COUNT
+				// COUNT BADGE
 
 				layout.Rigid(
 					func(gtx layout.Context) layout.Dimensions {
@@ -326,10 +326,7 @@ func (h *Home) header(
 							Right: unit.Dp(10),
 						}.Layout(
 							gtx,
-							material.Body2(
-								h.Theme,
-								h.statsText(),
-							).Layout,
+							h.statsBadge,
 						)
 					},
 				),
@@ -349,11 +346,17 @@ func (h *Home) header(
 							h.logout()
 						}
 
-						return material.Button(
+						button := material.Button(
 							h.Theme,
 							&h.LogoutButton,
 							"Logout",
-						).Layout(gtx)
+						)
+
+						button.Background = styles.Muted
+						button.Color = styles.TextSecondary
+						button.CornerRadius = unit.Dp(12)
+
+						return button.Layout(gtx)
 					},
 				),
 			)
@@ -376,6 +379,27 @@ func (h *Home) statsText() string {
 	return strconv.Itoa(total) + " tasks"
 }
 
+func (h *Home) statsBadge(gtx layout.Context) layout.Dimensions {
+
+	gtx.Constraints.Min.Y = gtx.Dp(unit.Dp(30))
+	gtx.Constraints.Max.Y = gtx.Dp(unit.Dp(30))
+
+	styles.FillMax(gtx, styles.PrimarySoft, unit.Dp(15))
+
+	return layout.Inset{
+		Top:    unit.Dp(5),
+		Bottom: unit.Dp(5),
+		Left:   unit.Dp(12),
+		Right:  unit.Dp(12),
+	}.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
+
+		label := material.Body2(h.Theme, h.statsText())
+		label.Color = styles.Primary
+
+		return label.Layout(gtx)
+	})
+}
+
 // ============================================================
 // ADD AREA
 // ============================================================
@@ -394,23 +418,7 @@ func (h *Home) inputArea(
 		gtx,
 		func(gtx layout.Context) layout.Dimensions {
 
-			radius := gtx.Dp(unit.Dp(16))
-
-			rect := clip.UniformRRect(
-				imageRect(gtx),
-				radius,
-			)
-
-			paint.FillShape(
-				gtx.Ops,
-				color.NRGBA{
-					R: 255,
-					G: 255,
-					B: 255,
-					A: 255,
-				},
-				rect.Op(gtx.Ops),
-			)
+			styles.FillMax(gtx, styles.Surface, unit.Dp(16))
 
 			return layout.Inset{
 				Top:    unit.Dp(10),
@@ -468,11 +476,17 @@ func (h *Home) inputArea(
 											h.createTodo()
 										}
 
-										return material.Button(
+										button := material.Button(
 											h.Theme,
 											&h.AddButton,
 											"Add",
-										).Layout(gtx)
+										)
+
+										button.Background = styles.Primary
+										button.Color = styles.OnPrimary
+										button.CornerRadius = unit.Dp(12)
+
+										return button.Layout(gtx)
 									},
 								)
 							},
@@ -496,10 +510,11 @@ func (h *Home) todoList(
 
 		return layout.Center.Layout(
 			gtx,
-			material.Body1(
-				h.Theme,
-				"Loading your tasks...",
-			).Layout,
+			func(gtx layout.Context) layout.Dimensions {
+				label := material.Body1(h.Theme, "Loading your tasks...")
+				label.Color = styles.TextSecondary
+				return label.Layout(gtx)
+			},
 		)
 	}
 
@@ -507,10 +522,11 @@ func (h *Home) todoList(
 
 		return layout.Center.Layout(
 			gtx,
-			material.Body1(
-				h.Theme,
-				"Unable to load tasks",
-			).Layout,
+			func(gtx layout.Context) layout.Dimensions {
+				label := material.Body1(h.Theme, "Unable to load tasks")
+				label.Color = styles.ErrorText
+				return label.Layout(gtx)
+			},
 		)
 	}
 
@@ -528,10 +544,11 @@ func (h *Home) todoList(
 					layout.Rigid(
 						func(gtx layout.Context) layout.Dimensions {
 
-							return material.H6(
-								h.Theme,
-								"You're all caught up!",
-							).Layout(gtx)
+							return layout.Center.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
+								label := material.H6(h.Theme, "You're all caught up! 🎉")
+								label.Color = styles.TextPrimary
+								return label.Layout(gtx)
+							})
 						},
 					),
 
@@ -542,10 +559,13 @@ func (h *Home) todoList(
 								Top: unit.Dp(8),
 							}.Layout(
 								gtx,
-								material.Body2(
-									h.Theme,
-									"Add a task above to get started.",
-								).Layout,
+								func(gtx layout.Context) layout.Dimensions {
+									return layout.Center.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
+										label := material.Body2(h.Theme, "Add a task above to get started.")
+										label.Color = styles.TextSecondary
+										return label.Layout(gtx)
+									})
+								},
 							)
 						},
 					),
@@ -594,7 +614,7 @@ func (h *Home) todoList(
 				Top:    unit.Dp(4),
 				Bottom: unit.Dp(4),
 				Left:   unit.Dp(24),
-				Right:  unit.Dp(4),
+				Right:  unit.Dp(24),
 			}.Layout(
 				gtx,
 				func(gtx layout.Context) layout.Dimensions {
@@ -631,15 +651,7 @@ func (h *Home) Layout(
 
 	h.processResults()
 
-	paint.Fill(
-		gtx.Ops,
-		color.NRGBA{
-			R: 246,
-			G: 247,
-			B: 249,
-			A: 255,
-		},
-	)
+	fillPageBackground(gtx)
 
 	return layout.Flex{
 		Axis: layout.Vertical,
@@ -654,20 +666,11 @@ func (h *Home) Layout(
 			h.inputArea,
 		),
 
+		layout.Rigid(spacer(8)),
+
 		layout.Flexed(
 			1,
 			h.todoList,
 		),
 	)
-}
-
-// ============================================================
-// HELPER
-// ============================================================
-
-func imageRect(gtx layout.Context) image.Rectangle {
-
-	return image.Rectangle{
-		Max: gtx.Constraints.Max,
-	}
 }

@@ -1,17 +1,13 @@
 package components
 
 import (
-	"image"
-	"image/color"
-
 	"gioui.org/layout"
-	"gioui.org/op/clip"
-	"gioui.org/op/paint"
 	"gioui.org/unit"
 	"gioui.org/widget"
 	"gioui.org/widget/material"
 
 	"todo-go/mobile/models"
+	"todo-go/mobile/styles"
 )
 
 type TodoCard struct {
@@ -51,27 +47,7 @@ func (c TodoCard) Layout(
 	gtx.Constraints.Min.Y = cardHeight
 	gtx.Constraints.Max.Y = cardHeight
 
-	radius := gtx.Dp(unit.Dp(14))
-
-	cardRect := image.Rectangle{
-		Max: gtx.Constraints.Max,
-	}
-
-	cardShape := clip.UniformRRect(
-		cardRect,
-		radius,
-	)
-
-	paint.FillShape(
-		gtx.Ops,
-		color.NRGBA{
-			R: 255,
-			G: 255,
-			B: 255,
-			A: 255,
-		},
-		cardShape.Op(gtx.Ops),
-	)
+	styles.FillMax(gtx, styles.Surface, unit.Dp(14))
 
 	// ----------------------------------------------------------
 	// TITLE
@@ -83,12 +59,9 @@ func (c TodoCard) Layout(
 	)
 
 	if c.Todo.Completed {
-		title.Color = color.NRGBA{
-			R: 145,
-			G: 145,
-			B: 150,
-			A: 255,
-		}
+		title.Color = styles.TextMuted
+	} else {
+		title.Color = styles.TextPrimary
 	}
 
 	// ----------------------------------------------------------
@@ -96,8 +69,8 @@ func (c TodoCard) Layout(
 	// ----------------------------------------------------------
 
 	return layout.Inset{
-		Left:  unit.Dp(14),
-		Right: unit.Dp(14),
+		Left:  unit.Dp(10),
+		Right: unit.Dp(10),
 	}.Layout(
 		gtx,
 		func(gtx layout.Context) layout.Dimensions {
@@ -117,7 +90,7 @@ func (c TodoCard) Layout(
 						gtx,
 
 						// --------------------------------------------------
-						// CHECKBOX
+						// STATUS DOT + CHECKBOX
 						// --------------------------------------------------
 
 						layout.Rigid(
@@ -178,16 +151,16 @@ func (c TodoCard) Layout(
 							func(gtx layout.Context) layout.Dimensions {
 
 								gtx.Constraints.Min.X =
-									gtx.Dp(unit.Dp(50))
+									gtx.Dp(unit.Dp(44))
 
 								gtx.Constraints.Max.X =
-									gtx.Dp(unit.Dp(50))
+									gtx.Dp(unit.Dp(44))
 
 								gtx.Constraints.Min.Y =
-									gtx.Dp(unit.Dp(48))
+									gtx.Dp(unit.Dp(44))
 
 								gtx.Constraints.Max.Y =
-									gtx.Dp(unit.Dp(48))
+									gtx.Dp(unit.Dp(44))
 
 								button := material.Button(
 									theme,
@@ -195,21 +168,9 @@ func (c TodoCard) Layout(
 									"×",
 								)
 
-								button.Background = color.NRGBA{
-									R: 245,
-									G: 245,
-									B: 247,
-									A: 255,
-								}
-
-								button.Color = color.NRGBA{
-									R: 100,
-									G: 100,
-									B: 105,
-									A: 255,
-								}
-
-								button.CornerRadius = unit.Dp(10)
+								button.Background = styles.ErrorSoft
+								button.Color = styles.ErrorText
+								button.CornerRadius = unit.Dp(22)
 
 								return layout.Center.Layout(
 									gtx,
