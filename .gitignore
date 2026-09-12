@@ -1,0 +1,64 @@
+.env
+backend/.env
+.env.*
+!.env.example
+
+# Compiled binaries
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test binaries
+*.test
+
+# Coverage
+*.out
+coverage.out
+
+# Go workspace
+go.work
+go.work.sum
+
+bin/
+build/
+dist/
+out/
+
+.idea/
+.vscode/
+
+*.swp
+*.swo
+*~
+
+.DS_Store
+.AppleDouble
+.LSOverride
+
+*.log
+logs/
+
+*.apk
+*.aab
+*.aar
+
+# Android build/cache directories
+.gradle/
+build/
+captures/
+
+# Android Studio
+.externalNativeBuild/
+.cxx/
+
+tmp/
+temp/
+
+
+*.db
+*.sqlite
+*.sqlite3
+
+*.local
