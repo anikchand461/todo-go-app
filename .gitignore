@@ -62,3 +62,5 @@ temp/
 *.sqlite3
 
 *.local
+*.idsig
+*.apk
