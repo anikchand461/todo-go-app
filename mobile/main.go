@@ -14,7 +14,7 @@ import (
 	"todo-go/mobile/screens"
 )
 
-const defaultAPIURL = "http://localhost:8000"
+const defaultAPIURL = "https://todo-go-app-kbsx.onrender.com/"
 
 type AppScreen int
 
